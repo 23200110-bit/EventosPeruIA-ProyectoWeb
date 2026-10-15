@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+.vs/
+.idea/
+TestResults/
+**/App_Data/
+**/appsettings.Local.json
+.env
+*.user
+*.suo
+*.pfx
+*.key
+*.token

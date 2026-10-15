@@ -1,0 +1,50 @@
+name: Compilación, pruebas y Database-First
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  validar:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: Synthetic-CI-Only-Password-2026!
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Synthetic-CI-Only-Password-2026!' -C -Q 'SELECT 1' -b"
+          --health-interval 10s --health-timeout 5s --health-retries 20
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+      EVENTOS_SQL_CONNECTION: Server=localhost,1433;Database=master;User Id=sa;Password=Synthetic-CI-Only-Password-2026!;TrustServerCertificate=True
+      ConnectionStrings__EventosPeruIA: Server=localhost,1433;Database=EventosPeruIA;User Id=sa;Password=Synthetic-CI-Only-Password-2026!;TrustServerCertificate=True
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet restore EventosPeruIA.sln
+      - run: dotnet build EventosPeruIA.sln --no-restore
+      - name: Ejecutar SQL original en SQL Server real desechable
+        run: dotnet run --project tools/DatabaseBootstrap -- Database/EventosPeruIA.sql
+      - run: dotnet tool restore
+      - name: Generar modelo completo desde SQL Server real
+        run: >-
+          dotnet ef dbcontext scaffold "$ConnectionStrings__EventosPeruIA" Microsoft.EntityFrameworkCore.SqlServer
+          --project src/EventosPeruIA.Domain --startup-project src/EventosPeruIA.Api
+          --context EventosPeruDbContext --output-dir Core/Entities --context-dir Infrastructure/Data
+          --namespace EventosPeruIA.Domain.Core.Entities --context-namespace EventosPeruIA.Domain.Infrastructure.Data
+          --use-database-names --no-pluralize --no-onconfiguring --force
+      - run: dotnet build EventosPeruIA.sln --no-restore
+      - run: dotnet test EventosPeruIA.sln --no-build --logger "trx;LogFileName=database-first.trx"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: modelo-database-first-y-pruebas
+          path: |
+            src/EventosPeruIA.Domain/Core/Entities/*.cs
+            src/EventosPeruIA.Domain/Infrastructure/Data/*.cs
+            tests/**/TestResults/*.trx
