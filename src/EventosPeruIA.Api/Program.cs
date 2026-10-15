@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using EventosPeruIA.Domain.Core.Services;
+using EventosPeruIA.Domain.Infrastructure.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false);
 var key = builder.Configuration["Jwt:Key"];
@@ -22,6 +24,7 @@ if (!builder.Environment.IsDevelopment() && string.IsNullOrWhiteSpace(builder.Co
 builder.Services.AddControllers(); builder.Services.AddProblemDetails(); builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new() { Title = "EventosPeruIA — Autenticación", Version = "v1" }); c.AddSecurityDefinition("Bearer", new() { Type = SecuritySchemeType.Http, Scheme = "bearer", BearerFormat = "JWT", Description = "Pega el JWT de /api/auth/login" }); c.AddSecurityRequirement(new() { [new() { Reference = new() { Type = ReferenceType.SecurityScheme, Id = "Bearer" } }] = Array.Empty<string>() }); });
 builder.Services.AddDbContext<EventosPeruDbContext>(o => o.UseSqlServer(builder.Configuration.GetConnectionString("EventosPeruIA")));
+builder.Services.AddScoped<IEventoRepository, EventoRepository>(); builder.Services.AddScoped<IEventoService, EventoService>();
 builder.Services.AddScoped<IPasswordHasher<Usuarios>, PasswordHasher<Usuarios>>(); builder.Services.AddScoped<IAuthService, AuthService>(); builder.Services.AddScoped<IRecoverySender, RecoverySender>(); builder.Services.AddSingleton(TimeProvider.System); builder.Services.AddScoped<JwtTokenGenerator>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o => { o.MapInboundClaims = false; o.TokenValidationParameters = new() { ValidateIssuer = true, ValidateAudience = true, ValidateLifetime = true, ValidateIssuerSigningKey = true, ValidIssuer = builder.Configuration["Jwt:Issuer"], ValidAudience = builder.Configuration["Jwt:Audience"], IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), ClockSkew = TimeSpan.FromSeconds(30) }; });
 builder.Services.AddAuthorization();
