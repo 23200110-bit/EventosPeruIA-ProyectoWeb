@@ -1,12 +1,15 @@
 {
   "sql_sha256": "08e993374ef18cf4a08b3b0ab0153300bd0e47be2d8361d71258a2913ff01920",
   "local_auth_tests": {
-    "passed": 7,
-    "sql_server_test": "Sólo CI"
+    "passed": 8,
+    "sql_server_test": "Sólo CI",
+    "framework": "net10.0",
+    "includes": "Autenticación y endpoints Health/Swagger"
   },
   "ci_sql_server": {
     "run": "https://github.com/23200110-bit/EventosPeruIA-ProyectoWeb/actions/runs/38748835835",
-    "conclusion": "success"
+    "conclusion": "success",
+    "framework": "net8.0 (validación histórica previa a la migración)"
   },
   "browser_ui": {
     "checks": 9,
@@ -15,5 +18,7 @@
   },
   "pending": [
     "Invitaciones: faltan usuarios GitHub de cuatro compañeros y docente."
-  ]
+  ],
+  "framework": "net10.0",
+  "migration_validation": "La validación .NET 10 se ejecuta en el workflow del commit actual."
 }

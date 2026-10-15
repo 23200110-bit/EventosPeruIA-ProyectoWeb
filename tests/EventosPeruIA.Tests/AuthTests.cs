@@ -36,6 +36,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
         b.ConfigureServices(s =>
         {
             s.RemoveAll<DbContextOptions<EventosPeruDbContext>>(); s.RemoveAll<EventosPeruDbContext>();
+            s.RemoveAll<Microsoft.EntityFrameworkCore.Infrastructure.IDbContextOptionsConfiguration<EventosPeruDbContext>>();
             s.AddDbContext<EventosPeruDbContext>(o => o.UseSqlite(connection));
             s.RemoveAll<IRecoverySender>(); s.AddSingleton<IRecoverySender>(Mail);
             s.RemoveAll<TimeProvider>(); s.AddSingleton<TimeProvider>(Clock);
@@ -57,6 +58,18 @@ public sealed class ApiFactory : WebApplicationFactory<Program>
 }
 public class AuthTests
 {
+    [Fact]
+    public async Task Health_and_Swagger_are_available_after_framework_migration()
+    {
+        using var f = new ApiFactory(); using var c = f.Start();
+        Assert.Equal(HttpStatusCode.OK, (await c.GetAsync("/health")).StatusCode);
+        var response = await c.GetAsync("/swagger/v1/swagger.json");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var schema = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.True(schema.GetProperty("paths").TryGetProperty("/api/auth/login", out _));
+        Assert.True(schema.GetProperty("paths").TryGetProperty("/api/auth/reset-password", out _));
+    }
+
     static object Registration(string email = "ana@example.test", int[]? ids = null) => new { nombres = "Ana", apellidos = "Pérez", correo = email, contrasena = "ClaveSegura123!", confirmarContrasena = "ClaveSegura123!", interesesIds = ids ?? [1] };
     static Task<HttpResponseMessage> Login(HttpClient c, string password = "ClaveSegura123!") => c.PostAsJsonAsync("/api/auth/login", new { correo = "ana@example.test", contrasena = password });
     [Fact]

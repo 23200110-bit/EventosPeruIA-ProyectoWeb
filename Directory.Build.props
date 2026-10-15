@@ -1,1 +1,1 @@
-<Project><PropertyGroup><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><LangVersion>12.0</LangVersion></PropertyGroup></Project>
+<Project><PropertyGroup><Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings><LangVersion>14.0</LangVersion></PropertyGroup><ItemGroup><!-- Evita la versión transitiva vulnerable de herramientas de diseño. --><PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" /></ItemGroup></Project>

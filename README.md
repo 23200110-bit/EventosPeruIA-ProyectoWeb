@@ -1,10 +1,10 @@
 # EventosPeruIA — base y autenticación
 
-Solución académica para Visual Studio 2022 (17.8 o superior), .NET 8 y SQL Server. Implementa la parte de infraestructura y autenticación del trabajo: US001, US002 y recuperación US018. El resto del backlog no está implementado todavía.
+Solución académica para Visual Studio 2026 actualizado (18.x), .NET 10 y SQL Server. Implementa la parte de infraestructura y autenticación del trabajo: US001, US002 y recuperación US018. El resto del backlog no está implementado todavía.
 
 ## Ejecutar en Windows
 
-1. Instala Visual Studio 2022 con ASP.NET y desarrollo web, SDK .NET 8 y SQL Server Express LocalDB (o SQL Server).
+1. Instala Visual Studio 2026 con ASP.NET y desarrollo web, SDK .NET 10 y SQL Server Express LocalDB (o SQL Server).
 2. En SSMS o Visual Studio ejecuta **una sola vez, sobre una base nueva**, `Database/EventosPeruIA.sql`. Es el archivo original recibido, sin cambios; las tablas no son idempotentes. No lo ejecutes sobre una base con datos existentes.
 3. Abre `EventosPeruIA.sln`. Establece `EventosPeruIA.Api` como proyecto de inicio.
 4. Desde la raíz, configura una clave JWT privada:
@@ -45,7 +45,7 @@ $env:ConnectionStrings__EventosPeruIA = "Server=(localdb)\MSSQLLocalDB;Database=
 ./scripts/Scaffold.ps1
 ```
 
-El script usa EF Core 8.0.32, preserva nombres de base, no escribe la conexión en código y reemplaza únicamente el modelo generado. Los DTO y servicios están separados. No se usan migraciones ni `EnsureCreated` para sustituir el SQL original.
+El script usa EF Core 10.0.13, preserva nombres de base, no escribe la conexión en código y reemplaza únicamente el modelo generado. Los DTO y servicios están separados. No se usan migraciones ni `EnsureCreated` para sustituir el SQL original.
 
 El workflow `validacion.yml` ejecuta el SQL original en un **SQL Server 2022 desechable**, hace scaffolding real, recompila y vuelve a correr las pruebas. El artefacto contiene el modelo generado y los resultados. La clave de SQL de ese workflow es exclusivamente sintética para la instancia efímera de CI; no pertenece a ningún servidor real.
 
