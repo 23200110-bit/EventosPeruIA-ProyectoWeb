@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace EventosPeruIA.Domain.Core.Entities;
+
+public partial class vw_DisponibilidadEventos
+{
+    public int EventoId { get; set; }
+
+    public string Nombre { get; set; } = null!;
+
+    public int Aforo { get; set; }
+
+    public int? EntradasVendidas { get; set; }
+
+    public int? CuposDisponibles { get; set; }
+}

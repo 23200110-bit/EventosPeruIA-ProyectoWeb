@@ -10,7 +10,9 @@ Solución académica para Visual Studio 2022 (17.8 o superior), .NET 8 y SQL Ser
 4. Desde la raíz, configura una clave JWT privada:
 
 ```powershell
-dotnet user-secrets set "Jwt:Key" ([Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(48))) --project src/EventosPeruIA.Api
+$bytes = New-Object byte[] 48
+[Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
+dotnet user-secrets set "Jwt:Key" ([Convert]::ToBase64String($bytes)) --project src/EventosPeruIA.Api
 ```
 
 5. La conexión predeterminada usa `(localdb)\MSSQLLocalDB`. Para otra instancia, guarda `ConnectionStrings:EventosPeruIA` mediante `dotnet user-secrets set` en el mismo proyecto. No subas contraseñas ni archivos locales a Git.
