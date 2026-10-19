@@ -1,9 +1,22 @@
-using EventosPeruIA.Domain.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
+using EventosPeruIA.CORE.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
 namespace EventosPeruIA.Api.Controllers;
-[ApiController, Route("api/categorias")]
+
+[ApiController]
+[Route("api/categorias")]
 public sealed class CategoriasController(EventosPeruDbContext db) : ControllerBase
 {
-    [HttpGet] public async Task<IActionResult> Get(CancellationToken ct) => Ok(await db.Categorias.AsNoTracking().Where(x => x.Activo).Select(x => new { x.CategoriaId, x.Nombre }).ToListAsync(ct));
+    [HttpGet]
+    public async Task<IActionResult> Get(CancellationToken ct)
+    {
+        var categorias = await db.Categorias
+            .AsNoTracking()
+            .Where(x => x.Activo)
+            .Select(x => new { x.CategoriaId, x.Nombre })
+            .ToListAsync(ct);
+
+        return Ok(categorias);
+    }
 }

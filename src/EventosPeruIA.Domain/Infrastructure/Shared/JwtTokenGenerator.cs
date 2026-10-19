@@ -1,9 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using EventosPeruIA.Domain.Core.DTOs;
+using Microsoft.Extensions.Configuration;
+using EventosPeruIA.CORE.Core.DTOs;
 using Microsoft.IdentityModel.Tokens;
 namespace EventosPeruIA.Api.Security;
+
 public sealed class JwtTokenGenerator(IConfiguration config, TimeProvider clock)
 {
     public object Generate(UsuarioResponseDTO u)

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-namespace EventosPeruIA.Domain.Core.DTOs;
+namespace EventosPeruIA.CORE.Core.DTOs;
+
 public sealed class RegisterRequestDTO
 {
     [Required, StringLength(100, MinimumLength = 1)] public string Nombres { get; set; } = "";

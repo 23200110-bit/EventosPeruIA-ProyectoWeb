@@ -1,10 +1,10 @@
-﻿using EventosPeruIA.Domain.Core.Entities;
-using EventosPeruIA.Domain.Core.Interfaces;
-using EventosPeruIA.Domain.Infrastructure.Data;
+﻿using EventosPeruIA.CORE.Core.Entities;
+using EventosPeruIA.CORE.Core.Interfaces;
+using EventosPeruIA.CORE.Infrastructure.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
-namespace EventosPeruIA.Domain.Infrastructure.Repositories
+namespace EventosPeruIA.CORE.Infrastructure.Repositories
 {
     public class EventoRepository : IEventoRepository
     {

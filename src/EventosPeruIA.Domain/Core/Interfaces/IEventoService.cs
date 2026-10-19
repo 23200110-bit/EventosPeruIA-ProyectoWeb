@@ -1,6 +1,6 @@
-﻿using EventosPeruIA.Domain.Core.DTOs;
+﻿using EventosPeruIA.CORE.Core.DTOs;
 
-namespace EventosPeruIA.Domain.Core.Interfaces
+namespace EventosPeruIA.CORE.Core.Interfaces
 {
     public interface IEventoService
     {

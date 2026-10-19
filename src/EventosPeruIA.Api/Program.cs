@@ -1,36 +1,79 @@
-using Microsoft.AspNetCore.Mvc;
 using System.Text;
-using System.Threading.RateLimiting;
 using EventosPeruIA.Api.Security;
 using EventosPeruIA.Api.Services;
-using EventosPeruIA.Domain.Core.Entities;
-using EventosPeruIA.Domain.Core.Interfaces;
-using EventosPeruIA.Domain.Infrastructure.Data;
-using EventosPeruIA.Domain.Infrastructure.Services;
+// Importaciones de namespaces centralizados (capa CORE)
+using EventosPeruIA.CORE.Core.Entities;
+using EventosPeruIA.CORE.Core.Interfaces;
+using EventosPeruIA.CORE.Core.Services;
+using EventosPeruIA.CORE.Infrastructure.Data;
+using EventosPeruIA.CORE.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using EventosPeruIA.Domain.Core.Services;
-using EventosPeruIA.Domain.Infrastructure.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: false);
-var key = builder.Configuration["Jwt:Key"];
-if (string.IsNullOrWhiteSpace(key) || Encoding.UTF8.GetByteCount(key) < 32) throw new InvalidOperationException("Configura Jwt:Key con al menos 32 bytes mediante user-secrets o variable Jwt__Key; no la subas a Git.");
-if (!builder.Environment.IsDevelopment() && string.IsNullOrWhiteSpace(builder.Configuration["Smtp:Host"])) throw new InvalidOperationException("Configura Smtp:Host y credenciales privadas para recuperación en producción.");
-builder.Services.AddControllers(); builder.Services.AddProblemDetails(); builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new() { Title = "EventosPeruIA — Autenticación", Version = "v1" }); c.AddSecurityDefinition("Bearer", new() { Type = SecuritySchemeType.Http, Scheme = "bearer", BearerFormat = "JWT", Description = "Pega el JWT de /api/auth/login" }); c.AddSecurityRequirement(new() { [new() { Reference = new() { Type = ReferenceType.SecurityScheme, Id = "Bearer" } }] = Array.Empty<string>() }); });
-builder.Services.AddDbContext<EventosPeruDbContext>(o => o.UseSqlServer(builder.Configuration.GetConnectionString("EventosPeruIA")));
-builder.Services.AddScoped<IEventoRepository, EventoRepository>(); builder.Services.AddScoped<IEventoService, EventoService>();
-builder.Services.AddScoped<IPasswordHasher<Usuarios>, PasswordHasher<Usuarios>>(); builder.Services.AddScoped<IAuthService, AuthService>(); builder.Services.AddScoped<IRecoverySender, RecoverySender>(); builder.Services.AddSingleton(TimeProvider.System); builder.Services.AddScoped<JwtTokenGenerator>();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o => { o.MapInboundClaims = false; o.TokenValidationParameters = new() { ValidateIssuer = true, ValidateAudience = true, ValidateLifetime = true, ValidateIssuerSigningKey = true, ValidIssuer = builder.Configuration["Jwt:Issuer"], ValidAudience = builder.Configuration["Jwt:Audience"], IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), ClockSkew = TimeSpan.FromSeconds(30) }; });
+
+// 1. Cadena de Conexión
+var cnx = builder.Configuration.GetConnectionString("EventosPeruIA")
+          ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<EventosPeruDbContext>(options =>
+    options.UseSqlServer(cnx));
+
+// 2. Inyección de Dependencias (Servicios reales de la capa CORE)
+builder.Services.AddScoped<IEventoRepository, EventoRepository>();
+builder.Services.AddScoped<IEventoService, EventoService>();
+
+// Registros necesarios para AuthService y la capa Shared
+builder.Services.AddScoped<IRecoverySender, RecoverySender>();
+builder.Services.AddScoped<JwtTokenGenerator>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<IPasswordHasher<Usuarios>, PasswordHasher<Usuarios>>();
+
+// 3. Autenticación y JWT
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (!string.IsNullOrWhiteSpace(jwtKey) && Encoding.UTF8.GetByteCount(jwtKey) >= 32)
+{
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                ValidAudience = builder.Configuration["Jwt:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+                ClockSkew = TimeSpan.FromSeconds(30)
+            };
+        });
+}
+
 builder.Services.AddAuthorization();
-builder.Services.AddRateLimiter(o => { o.RejectionStatusCode = 429; o.AddPolicy("auth", ctx => RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString() ?? "local", _ => new() { PermitLimit = 30, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 })); });
+builder.Services.AddControllers();
+
+// 4. Swagger / OpenAPI
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
-app.UseExceptionHandler(handler => handler.Run(async ctx => { var ex = ctx.Features.Get<IExceptionHandlerFeature>()?.Error; if (ex is AuthException known) { ctx.Response.StatusCode = known.Status; await ctx.Response.WriteAsJsonAsync(new ProblemDetails { Status = known.Status, Title = known.Message }); } else { ctx.Response.StatusCode = 500; await ctx.Response.WriteAsJsonAsync(new ProblemDetails { Status = 500, Title = "No se pudo completar la operación." }); } }));
-if (app.Environment.IsDevelopment()) { app.UseSwagger(); app.UseSwaggerUI(); } else app.UseHttpsRedirection();
-app.UseDefaultFiles(); app.UseStaticFiles(); app.UseRateLimiter(); app.UseAuthentication(); app.UseAuthorization(); app.MapControllers(); app.MapGet("/health", () => Results.Ok(new { estado = "API disponible" })); app.Run();
-public partial class Program { }
+
+// 5. Middleware Pipeline
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.MapGet("/health", () => Results.Ok(new { estado = "API disponible" }));
+
+app.Run();

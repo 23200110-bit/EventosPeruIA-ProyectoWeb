@@ -1,6 +1,6 @@
-﻿using EventosPeruIA.Domain.Core.Entities;
+﻿using EventosPeruIA.CORE.Core.Entities;
 
-namespace EventosPeruIA.Domain.Core.Interfaces
+namespace EventosPeruIA.CORE.Core.Interfaces
 {
     public interface IEventoRepository
     {

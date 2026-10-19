@@ -1,12 +1,12 @@
 using System.Security.Cryptography;
 using System.Text;
-using EventosPeruIA.Domain.Core.DTOs;
-using EventosPeruIA.Domain.Core.Entities;
-using EventosPeruIA.Domain.Core.Interfaces;
-using EventosPeruIA.Domain.Infrastructure.Data;
+using EventosPeruIA.CORE.Core.DTOs;
+using EventosPeruIA.CORE.Core.Entities;
+using EventosPeruIA.CORE.Core.Interfaces;
+using EventosPeruIA.CORE.Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-namespace EventosPeruIA.Domain.Infrastructure.Services;
+namespace EventosPeruIA.CORE.Core.Services;
 public sealed class AuthService(EventosPeruDbContext db, IPasswordHasher<Usuarios> hasher, IRecoverySender sender, TimeProvider clock) : IAuthService
 {
     static string Email(string value) => value.Trim().ToLowerInvariant();

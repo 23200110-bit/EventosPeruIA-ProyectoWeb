@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EventosPeruIA.Domain.Core.Entities;
+namespace EventosPeruIA.CORE.Core.Entities;
 
 public partial class Entradas
 {

@@ -1,8 +1,8 @@
-﻿using EventosPeruIA.Domain.Core.DTOs;
-using EventosPeruIA.Domain.Core.Entities;
-using EventosPeruIA.Domain.Core.Interfaces;
+﻿using EventosPeruIA.CORE.Core.DTOs;
+using EventosPeruIA.CORE.Core.Entities;
+using EventosPeruIA.CORE.Core.Interfaces;
 
-namespace EventosPeruIA.Domain.Core.Services
+namespace EventosPeruIA.CORE.Core.Services
 {
     public class EventoService : IEventoService
     {

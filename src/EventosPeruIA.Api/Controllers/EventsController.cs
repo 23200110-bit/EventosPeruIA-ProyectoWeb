@@ -1,7 +1,10 @@
 using System.Security.Claims;
-using EventosPeruIA.Domain.Core.DTOs;
-using EventosPeruIA.Domain.Core.Interfaces;
-using EventosPeruIA.Domain.Infrastructure.Data;
+using EventosPeruIA.CORE.Core.DTOs;
+using EventosPeruIA.CORE.Core.Interfaces;
+using EventosPeruIA.CORE.Infrastructure.Data;
+using EventosPeruIA.CORE.Core.DTOs;
+using EventosPeruIA.CORE.Core.Interfaces;
+using EventosPeruIA.CORE.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

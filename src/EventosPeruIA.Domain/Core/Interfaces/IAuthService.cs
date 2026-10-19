@@ -1,5 +1,5 @@
-using EventosPeruIA.Domain.Core.DTOs;
-namespace EventosPeruIA.Domain.Core.Interfaces;
+using EventosPeruIA.CORE.Core.DTOs;
+namespace EventosPeruIA.CORE.Core.Interfaces;
 public interface IAuthService
 {
     Task<UsuarioResponseDTO> Register(RegisterRequestDTO dto, CancellationToken ct);

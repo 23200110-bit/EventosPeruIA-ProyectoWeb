@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using EventosPeruIA.Domain.Core.Entities;
+using EventosPeruIA.CORE.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace EventosPeruIA.Domain.Infrastructure.Data;
+namespace EventosPeruIA.CORE.Infrastructure.Data;
 
 public partial class EventosPeruDbContext : DbContext
 {

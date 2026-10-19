@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using EventosPeruIA.Domain.Core.Interfaces;
+using EventosPeruIA.CORE.Core.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EventosPeruIA.Domain.Core.Entities;
+namespace EventosPeruIA.CORE.Core.Entities;
 
 public partial class AccionesModeracion
 {
@@ -14,7 +14,7 @@ public partial class AccionesModeracion
     public string EntidadTipo { get; set; } = null!;
 
     public int EntidadId { get; set; }
-
+    
     public string? Motivo { get; set; }
 
     public DateTime FechaHora { get; set; }

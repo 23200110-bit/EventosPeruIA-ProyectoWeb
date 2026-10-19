@@ -1,7 +1,9 @@
 using System.Net;
 using System.Net.Mail;
-using EventosPeruIA.Domain.Core.DTOs;
-using EventosPeruIA.Domain.Core.Interfaces;
+using EventosPeruIA.CORE.Core.DTOs;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using EventosPeruIA.CORE.Core.Interfaces;
 namespace EventosPeruIA.Api.Services;
 public sealed class RecoverySender(IHostEnvironment env, IConfiguration config) : IRecoverySender
 {
